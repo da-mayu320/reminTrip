@@ -87,6 +87,4 @@ test:
 #
 production:
   <<: *default
-  database: reminTrip_production
-  username: reminTrip
-  password: <%= ENV["REMINTRIP_DATABASE_PASSWORD"] %>
+  url: <%= ENV['DATABASE_URL'] %>
