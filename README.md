@@ -43,3 +43,4 @@ Gmailなどからカレンダーに予定登録なども可能ではあるが、
 - 言語: Ruby 3.2.3
 - データベース: PostgreSQL
 - デプロイ先: Render
+- ログイン機能: Rails-devise
