@@ -30,7 +30,11 @@ Devise.setup do |config|
                   ENV['GOOGLE_CLIENT_ID'],
                   ENV['GOOGLE_CLIENT_SECRET'],
                   {
-                    redirect_uri: "http://localhost:3000/users/auth/google_oauth2/callback"
+                    redirect_uri: if Rails.env.production?
+                                    "https://remintrip.onrender.com/users/auth/google_oauth2/callback"
+                                  else
+                                    "http://localhost:3000/users/auth/google_oauth2/callback"
+                                  end
                   }
                   
   # Configure the class responsible to send e-mails.
