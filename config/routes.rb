@@ -11,7 +11,9 @@ Rails.application.routes.draw do
   resources :boards
 
   # ログインユーザー自身のページ
-  resource :user, only: [:show]  # singular resource, /user でアクセス
+  resource :user, only: [:show] do
+    get 'google_connected', on: :member
+  end
   
   # Gmailメール取得（任意ボタン用）
   get "/fetch_travel_emails", to: "google#fetch_travel_emails", as: "fetch_travel_emails"

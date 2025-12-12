@@ -12,4 +12,15 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
       redirect_to new_user_registration_url, alert: "Googleアカウントでのログインに失敗しました"
     end
   end
+
+  def google_oauth2
+    @user = User.from_omniauth(request.env['omniauth.auth'])
+    if @user.persisted?
+      sign_in(@user)
+      flash[:notice] = "Googleアカウント連携が完了しました"
+      redirect_to google_connected_user_path(@user) # ←ここで遷移先を指定
+    else
+      redirect_to new_user_registration_url, alert: "連携に失敗しました"
+    end
+  end
 end
