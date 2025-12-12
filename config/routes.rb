@@ -3,8 +3,8 @@ Rails.application.routes.draw do
 
   get '/auth/:provider/callback', to: 'google#callback'
 
+  get "/auth/google_oauth2", to: "google#auth"
   get "/auth/google_oauth2/callback", to: "google#callback"
-  get "/google/auth", to: "google#auth", as: :google_auth
 
   
   root 'homes#index'
