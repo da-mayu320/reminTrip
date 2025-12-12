@@ -1,5 +1,6 @@
 Rails.application.config.middleware.use OmniAuth::Builder do
   redirect_uri = Rails.env.production? ? ENV['GOOGLE_REDIRECT_URI_PROD'] : ENV['GOOGLE_REDIRECT_URI_LOCAL']
+  OmniAuth.config.allowed_request_methods = [:post, :get]
 
   provider :google_oauth2,
            ENV['GOOGLE_CLIENT_ID'],
