@@ -1,17 +1,16 @@
 class GoogleController < ApplicationController
-  require "google/apis/gmail_v1"
   require "signet/oauth_2/client"
+  require "google/apis/gmail_v1"
   require "cgi"
 
-  # Googleログインへリダイレクト
+  before_action :authenticate_user!  # ログイン必須
+
+  # Google OAuth にリダイレクト
   def auth
     client_id = ENV['GOOGLE_CLIENT_ID']
-    redirect_uri = Rails.env.production? ? 
-                     "https://remintrip.onrender.com/auth/google_oauth2/callback" : 
-                     "http://localhost:3000/auth/google_oauth2/callback"
+    redirect_uri = auth_google_callback_url
     scope = "https://www.googleapis.com/auth/gmail.readonly"
 
-    # OAuth URL を手動で作成（response_type=code を必ず含める）
     url = "https://accounts.google.com/o/oauth2/v2/auth?" +
           "client_id=#{client_id}" +
           "&redirect_uri=#{CGI.escape(redirect_uri)}" +
@@ -20,43 +19,57 @@ class GoogleController < ApplicationController
           "&access_type=offline" +
           "&prompt=consent"
 
-    # URLをブラウザに飛ばす
     redirect_to url, allow_other_host: true
   end
 
-  # Googleから返ってきたとき
+  # OAuth コールバック
   def callback
     code = params[:code]
-    client_id = ENV['GOOGLE_CLIENT_ID']
-    client_secret = ENV['GOOGLE_CLIENT_SECRET']
-    redirect_uri = Rails.env.production? ? 
-                     "https://remintrip.onrender.com/auth/google_oauth2/callback" : 
-                     "http://localhost:3000/auth/google_oauth2/callback"
-
     client = Signet::OAuth2::Client.new(
-      client_id: client_id,
-      client_secret: client_secret,
+      client_id: ENV['GOOGLE_CLIENT_ID'],
+      client_secret: ENV['GOOGLE_CLIENT_SECRET'],
       token_credential_uri: "https://oauth2.googleapis.com/token",
       code: code,
-      redirect_uri: redirect_uri
+      redirect_uri: auth_google_callback_url
     )
 
-    # アクセストークンを取得
-    begin
-      client.fetch_access_token!
-    rescue => e
-      render plain: "アクセストークン取得エラー: #{e.message}" and return
-    end
+    token_data = client.fetch_access_token!
 
-    # Gmail API 呼び出し
-    service = Google::Apis::GmailV1::GmailService.new
-    service.authorization = client
+    # トークン保存
+    current_user.update(
+      google_access_token: token_data['access_token'],
+      google_refresh_token: token_data['refresh_token'],
+      token_expires_at: Time.now + token_data['expires_in'].to_i.seconds
+    )
 
-    begin
-      messages = service.list_user_messages('me', max_results: 5)
-      render plain: messages.to_json
-    rescue => e
-      render plain: "Gmail API呼び出しエラー: #{e.message}"
-    end
+    redirect_to root_path, notice: "Googleアカウントを連携しました"
   end
+end
+
+def fetch_travel_emails
+  client = Signet::OAuth2::Client.new(
+    client_id: ENV['GOOGLE_CLIENT_ID'],
+    client_secret: ENV['GOOGLE_CLIENT_SECRET'],
+    token_credential_uri: 'https://oauth2.googleapis.com/token',
+    access_token: current_user.google_access_token,
+    refresh_token: current_user.google_refresh_token
+  )
+
+  service = Google::Apis::GmailV1::GmailService.new
+  service.authorization = client
+
+  messages = service.list_user_messages('me', max_results: 10).messages || []
+
+  travel_info = []
+
+  messages.each do |msg|
+    message = service.get_user_message('me', msg.id)
+    body = message.payload.parts&.map(&:body)&.map(&:data)&.join || ""
+    body = Base64.urlsafe_decode64(body) rescue body
+
+    # 正規表現で旅行情報抽出（例: 「旅行先: 東京」）
+    travel_info += body.scan(/旅行先:\s*(\S+)/)
+  end
+
+  render plain: travel_info.flatten.join(", ")
 end

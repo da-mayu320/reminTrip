@@ -1,15 +1,22 @@
 Rails.application.routes.draw do
-  devise_for :users
+  # Devise のユーザー認証 + Omniauth コールバック
+  devise_for :users, controllers: {
+    omniauth_callbacks: 'users/omniauth_callbacks'
+  }
 
-  get '/auth/:provider/callback', to: 'google#callback'
-
-  get "/auth/google_oauth2", to: "google#auth"
-  get "/auth/google_oauth2/callback", to: "google#callback"
-
-  
+  # root ページ
   root 'homes#index'
+
+  # boardsリソース
   resources :boards
 
+  # ログインユーザー自身のページ
+  resource :user, only: [:show]  # singular resource, /user でアクセス
+  
+  # Gmailメール取得（任意ボタン用）
+  get "/fetch_travel_emails", to: "google#fetch_travel_emails", as: "fetch_travel_emails"
+
+  # LetterOpenerWeb（開発用メール確認）
   if Rails.env.development?
     mount LetterOpenerWeb::Engine, at: "/letter_opener"
   end
