@@ -11,11 +11,20 @@ class User < ApplicationRecord
   has_many :boards, dependent: :destroy
 
   def self.from_omniauth(auth)
-    where(provider: auth.provider, uid: auth.uid).first_or_create do |user|
-      user.email = auth.info.email
-      user.password = Devise.friendly_token[0, 20]
-      user.name = auth.info.name # カラムがあれば
-    end
+    user = where(provider: auth.provider, uid: auth.uid).first_or_initialize
+
+    user.email = auth.info.email
+    user.name  = auth.info.name
+
+  # 初回ユーザーはパスワード生成
+    user.password ||= Devise.friendly_token[0, 20]
+
+  # トークン更新は毎回やる！
+    user.google_access_token  = auth.credentials.token
+    user.google_refresh_token = auth.credentials.refresh_token if auth.credentials.refresh_token.present?
+
+    user.save!
+    user
   end
 
   def google_connected?

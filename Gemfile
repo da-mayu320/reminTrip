@@ -56,11 +56,14 @@ gem "rails-i18n"
 
 gem 'dotenv-rails'
 
-gem 'omniauth'
-gem 'omniauth-google-oauth2'
+gem 'omniauth', '~> 2.1'
+gem 'omniauth-rails_csrf_protection'
+gem 'omniauth-google-oauth2', '~> 1.2'
 
 gem 'google-apis-gmail_v1'
-gem 'googleauth'
+gem 'googleauth', '~> 1.8'
+
+gem 'jwt', '~> 2.9.2'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
