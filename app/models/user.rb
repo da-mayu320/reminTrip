@@ -1,10 +1,8 @@
 class User < ApplicationRecord
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable,
          :omniauthable, omniauth_providers: [:google_oauth2]
-         
+
   encrypts :google_access_token
   encrypts :google_refresh_token
 
@@ -14,14 +12,12 @@ class User < ApplicationRecord
     user = where(provider: auth.provider, uid: auth.uid).first_or_initialize
 
     user.email = auth.info.email
-    user.name  = auth.info.name
-
-  # 初回ユーザーはパスワード生成
+    user.name  = auth.info.name if user.name.blank?
     user.password ||= Devise.friendly_token[0, 20]
 
-  # トークン更新は毎回やる！
     user.google_access_token  = auth.credentials.token
     user.google_refresh_token = auth.credentials.refresh_token if auth.credentials.refresh_token.present?
+    user.token_expires_at     = Time.at(auth.credentials.expires_at)
 
     user.save!
     user
@@ -31,3 +27,4 @@ class User < ApplicationRecord
     provider.present? && uid.present?
   end
 end
+
