@@ -2,5 +2,8 @@
 <% if current_user.google_connected? %>
   <p>すでに連携済みです</p>
 <% else %>
-  <%= link_to "Googleアカウントを連携する", user_google_oauth2_omniauth_authorize_path, class: "btn btn-primary" %>
+  <%= link_to "Gmailと連携して予定を見る",
+  user_google_oauth2_omniauth_authorize_path,
+  data: { turbo: false },
+  class: "btn btn-primary" %>
 <% end %>
