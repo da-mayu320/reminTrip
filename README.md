@@ -44,7 +44,7 @@ Gmailなどからカレンダーに予定登録なども可能ではあるが、
 - ログイン機能: Rails-devise
 
 ### 画面遷移図
-Figma：https://www.figma.com/board/hED8p6Ms5cxZdYcKpTPEtG/FigJam%E3%81%B8%E3%82%88%E3%81%86%E3%81%93%E3%81%9D?node-id=0-1&t=JlFCVfFsGKcetUns-1
+Figma：https://www.figma.com/board/hED8p6Ms5cxZdYcKpTPEtG/%E5%8D%92%E6%A5%AD%E5%88%B6%E4%BD%9C?node-id=0-1&t=JlFCVfFsGKcetUns-1
 
 ### 本サービスの概要（700文字以内）
 本サービスは、旅行時に複数サイトから予約を行い、情報管理が大変な人をターゲットに、複数サイトで予約した旅行の予約情報（時間、場所、予約番号）を一元管理し、
