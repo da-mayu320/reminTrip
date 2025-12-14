@@ -3,7 +3,7 @@ class GoogleController < ApplicationController
   require "google/apis/gmail_v1"
   require "cgi"
 
-  before_action :authenticate_user!  # ログイン必須
+  before_action :authenticate_user!
 
   # Google OAuth にリダイレクト
   def auth
@@ -25,6 +25,7 @@ class GoogleController < ApplicationController
   # OAuth コールバック
   def callback
     code = params[:code]
+
     client = Signet::OAuth2::Client.new(
       client_id: ENV['GOOGLE_CLIENT_ID'],
       client_secret: ENV['GOOGLE_CLIENT_SECRET'],
@@ -35,41 +36,38 @@ class GoogleController < ApplicationController
 
     token_data = client.fetch_access_token!
 
-    # トークン保存
-    current_user.update(
+    current_user.update!(
       google_access_token: token_data['access_token'],
       google_refresh_token: token_data['refresh_token'],
-      token_expires_at: Time.now + token_data['expires_in'].to_i.seconds
+      token_expires_at: Time.current + token_data['expires_in'].to_i.seconds
     )
 
     redirect_to root_path, notice: "Googleアカウントを連携しました"
   end
-end
 
-def fetch_travel_emails
-  client = Signet::OAuth2::Client.new(
-    client_id: ENV['GOOGLE_CLIENT_ID'],
-    client_secret: ENV['GOOGLE_CLIENT_SECRET'],
-    token_credential_uri: 'https://oauth2.googleapis.com/token',
-    access_token: current_user.google_access_token,
-    refresh_token: current_user.google_refresh_token
-  )
+  # ★ 最小実装：Gmailを1件取得
+  def fetch_travel_emails
+    client = Signet::OAuth2::Client.new(
+      client_id: ENV['GOOGLE_CLIENT_ID'],
+      client_secret: ENV['GOOGLE_CLIENT_SECRET'],
+      token_credential_uri: "https://oauth2.googleapis.com/token",
+      access_token: current_user.google_access_token,
+      refresh_token: current_user.google_refresh_token
+    )
 
-  service = Google::Apis::GmailV1::GmailService.new
-  service.authorization = client
+    service = Google::Apis::GmailV1::GmailService.new
+    service.authorization = client
 
-  messages = service.list_user_messages('me', max_results: 10).messages || []
+    # ① メールIDを1件取得
+    messages = service.list_user_messages('me', max_results: 1).messages
+    return render plain: "メールがありません" if messages.blank?
 
-  travel_info = []
+    # ② メールの中身を取得
+    message = service.get_user_message('me', messages.first.id)
 
-  messages.each do |msg|
-    message = service.get_user_message('me', msg.id)
-    body = message.payload.parts&.map(&:body)&.map(&:data)&.join || ""
-    body = Base64.urlsafe_decode64(body) rescue body
+    # ③ 件名を探す
+    subject = message.payload.headers.find { |h| h.name == "Subject" }&.value
 
-    # 正規表現で旅行情報抽出（例: 「旅行先: 東京」）
-    travel_info += body.scan(/旅行先:\s*(\S+)/)
+    render plain: "件名: #{subject}"
   end
-
-  render plain: travel_info.flatten.join(", ")
 end
