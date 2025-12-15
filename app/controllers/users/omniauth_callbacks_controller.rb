@@ -1,11 +1,6 @@
 class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   def google_oauth2
     auth = request.env["omniauth.auth"]
-    Rails.logger.debug "==== OMNIAUTH AUTH ===="
-    Rails.logger.debug auth.inspect
-    Rails.logger.debug "==== CREDENTIALS ===="
-    Rails.logger.debug auth.credentials.inspect
-    Rails.logger.debug "=================="
 
     @user = User.from_omniauth(auth)
 
