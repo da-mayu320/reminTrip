@@ -5,23 +5,31 @@
 <% end %>
 
 <% if @travel_infos.any? %>
-  <table>
+  <table border="1" cellpadding="5" cellspacing="0">
     <thead>
       <tr>
         <th>予約番号</th>
-        <th>搭乗日</th>
-        <th>出発地</th>
-        <th>到着地</th>
+        <th>搭乗日時・出発地</th>
+        <th>到着日時・到着地</th>
       </tr>
     </thead>
     <tbody>
       <% @travel_infos.each do |info| %>
-        <tr>
-          <td><%= info.reservation_number %></td>
-          <td><%= info.flight_date&.strftime("%Y-%m-%d") %></td>
-          <td><%= info.departure || "–" %></td>
-          <td><%= info.arrival || "–" %></td>
-        </tr>
+        <% if info.provider == 'JAL' %>
+          <tr>
+            <td><%= info.reservation_number %></td>
+            <td>
+              <%= info.flight_date %>
+              <%= info.departure_time %> /
+              <%= info.departure %>
+            </td>
+            <td>
+              <%= info.flight_date %>
+              <%= info.arrival_time %> /
+              <%= info.arrival %>
+            </td>
+          </tr>
+        <% end %>
       <% end %>
     </tbody>
   </table>
