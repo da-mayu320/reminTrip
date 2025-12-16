@@ -1,7 +1,11 @@
 <h1>旅行情報一覧</h1>
 
-<% if @travel_infos.present? %>
-  <table border="1" cellpadding="5" cellspacing="0">
+<%= form_with url: fetch_from_gmail_travel_infos_path, method: :post, local: true do %>
+  <%= submit_tag "Gmailから最新情報を取得" %>
+<% end %>
+
+<% if @travel_infos.any? %>
+  <table>
     <thead>
       <tr>
         <th>予約番号</th>
@@ -13,10 +17,10 @@
     <tbody>
       <% @travel_infos.each do |info| %>
         <tr>
-          <td><%= info.reservation_number.presence || '–' %></td>
-          <td><%= info.flight_date.present? ? info.flight_date.strftime('%Y-%m-%d') : '–' %></td>
-          <td><%= info.departure.presence || '–' %></td>
-          <td><%= info.arrival.presence || '–' %></td>
+          <td><%= info.reservation_number %></td>
+          <td><%= info.flight_date&.strftime("%Y-%m-%d") %></td>
+          <td><%= info.departure || "–" %></td>
+          <td><%= info.arrival || "–" %></td>
         </tr>
       <% end %>
     </tbody>
@@ -24,7 +28,6 @@
 <% else %>
   <p>まだ旅行情報はありません。</p>
 <% end %>
-
 
 
 
