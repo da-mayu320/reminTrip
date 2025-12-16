@@ -106,7 +106,7 @@ Figma：https://www.figma.com/board/hED8p6Ms5cxZdYcKpTPEtG/%E5%8D%92%E6%A5%AD%E5
 - ID : メッセージを一意に識別するID（1, 2…）
 - user_id : UsersテーブルのID（外部キー）（例: 1）
 - gmail_message_id : Gmail側のメッセージID（例: 1789abcdef）
-- subject : メール件名（例: 会議のご案内）
+- subject : メール件名（例: JAL国内線　購入内容のお知らせ）
 - from_address : 送信元メールアドレス（例: example@gmail.com）
 - received_at : 受信日時（例: 2025-12-15 15:00:00）
 - raw_body_text : メール本文の生データ（例: こんにちは、旅行予定について…）
@@ -117,9 +117,9 @@ Figma：https://www.figma.com/board/hED8p6Ms5cxZdYcKpTPEtG/%E5%8D%92%E6%A5%AD%E5
 - ID : スケジュールを一意に識別するID（1, 2…）
 - user_id : UsersテーブルのID（外部キー）（例: 1）
 - gmail_message_id : GmailMessagesテーブルのID（外部キー）（例: 12）
-- title : 旅行予定タイトル（例: JAL国内線　購入内容のお知らせ）
+- title : 旅行予定タイトル（例: 那覇へのフライト）
 - start_datetime : 出発日時（例: 2025-12-17 10:00:00）
-- end_datetime : 到着時（例: 2025-12-17 13:00:00）
+- end_datetime : 到着日時（例: 2025-12-17 13:00:00）
 - location : 場所（例: 那覇空港）
 - source_type : スケジュール取得元（例: "gmail"）
 - created_at : レコード作成日時（例: 2025-12-16 09:00:00）
