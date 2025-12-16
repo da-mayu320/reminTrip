@@ -1,9 +1,7 @@
-<h2>Googleアカウント連携</h2>
-<% if current_user.google_connected? %>
-  <p>すでに連携済みです</p>
+<h1>ようこそ、<%= current_user.name %>さん</h1>
+
+<% if current_user.google_access_token.present? %>
+  <%= button_to '旅行情報を取得', fetch_from_gmail_travel_infos_path, method: :post %>
 <% else %>
-  <%= link_to "Gmailと連携して予定を見る",
-  user_google_oauth2_omniauth_authorize_path,
-  data: { turbo: false },
-  class: "btn btn-primary" %>
+  <%= link_to 'Googleアカウント連携', auth_google_path %>
 <% end %>
