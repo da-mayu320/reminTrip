@@ -1,0 +1,32 @@
+<h1>旅行情報一覧</h1>
+
+<% if @travel_infos.present? %>
+  <table border="1" cellpadding="5" cellspacing="0">
+    <thead>
+      <tr>
+        <th>予約番号</th>
+        <th>搭乗日</th>
+        <th>出発地</th>
+        <th>到着地</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @travel_infos.each do |info| %>
+        <tr>
+          <td><%= info.reservation_number.presence || '–' %></td>
+          <td><%= info.flight_date.present? ? info.flight_date.strftime('%Y-%m-%d') : '–' %></td>
+          <td><%= info.departure.presence || '–' %></td>
+          <td><%= info.arrival.presence || '–' %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>まだ旅行情報はありません。</p>
+<% end %>
+
+
+
+
+
+
