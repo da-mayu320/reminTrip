@@ -7,6 +7,8 @@ Rails.application.routes.draw do
   # root ページ
   root 'homes#index'
 
+  resources :travel_infos, only: [:index]
+  
   # boardsリソース
   resources :boards
 

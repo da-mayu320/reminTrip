@@ -6,6 +6,8 @@ class User < ApplicationRecord
   encrypts :google_access_token
   encrypts :google_refresh_token
 
+  has_many :travel_infos, dependent: :destroy
+
   def self.from_omniauth(auth)
     user = find_or_initialize_by(email: auth.info.email)
 
