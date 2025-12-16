@@ -15,8 +15,12 @@ Rails.application.routes.draw do
     get 'google_connected', on: :member
   end
   
-  # Gmailメール取得（任意ボタン用）
-  get "/fetch_travel_emails", to: "google#fetch_travel_emails", as: "fetch_travel_emails"
+  # GoogleController 関連のルーティング
+  scope :google do
+    get 'auth', to: 'google#auth', as: :auth_google
+    get 'callback', to: 'google#callback', as: :auth_google_callback
+    get 'read_email', to: 'google#read_email'
+  end
 
   # LetterOpenerWeb（開発用メール確認）
   if Rails.env.development?

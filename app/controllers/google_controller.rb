@@ -1,11 +1,7 @@
 class GoogleController < ApplicationController
-  require "signet/oauth_2/client"
-  require "google/apis/gmail_v1"
-  require "cgi"
-
   before_action :authenticate_user!
 
-  # Google OAuth にリダイレクト
+  # Gmail 認証ページにリダイレクト
   def auth
     client_id = ENV['GOOGLE_CLIENT_ID']
     redirect_uri = auth_google_callback_url
@@ -45,29 +41,37 @@ class GoogleController < ApplicationController
     redirect_to root_path, notice: "Googleアカウントを連携しました"
   end
 
-  # ★ 最小実装：Gmailを1件取得
-  def fetch_travel_emails
-    client = Signet::OAuth2::Client.new(
-      client_id: ENV['GOOGLE_CLIENT_ID'],
-      client_secret: ENV['GOOGLE_CLIENT_SECRET'],
-      token_credential_uri: "https://oauth2.googleapis.com/token",
-      access_token: current_user.google_access_token,
-      refresh_token: current_user.google_refresh_token
-    )
+  # 最新メール取得
+  def read_email
+    results = fetch_travel_info
+    render json: results
+  end
 
+  private
+
+  def fetch_travel_info(max_emails: 20)
     service = Google::Apis::GmailV1::GmailService.new
-    service.authorization = client
+    service.authorization = current_user.google_api_client
 
-    # ① メールIDを1件取得
-    messages = service.list_user_messages('me', max_results: 1).messages
-    return render plain: "メールがありません" if messages.blank?
+    messages = service.list_user_messages('me', max_results: max_emails)&.messages
+    return [] if messages.blank?
 
-    # ② メールの中身を取得
-    message = service.get_user_message('me', messages.first.id)
+    travel_infos = []
 
-    # ③ 件名を探す
-    subject = message.payload.headers.find { |h| h.name == "Subject" }&.value
+    messages.each do |msg|
+      message = service.get_user_message('me', msg.id)
 
-    render plain: "件名: #{subject}"
+      html = GmailParser.extract_html(message)
+      next unless html
+
+      text = GmailParser.html_to_text(html)
+      # 旅行っぽいメールだけ対象
+      next unless text =~ /予約|ホテル|航空|搭乗|宿泊|出発|到着/
+
+      info = TravelInfoExtractor.extract(text)
+      travel_infos << info unless info.empty?
+    end
+
+    travel_infos
   end
 end
