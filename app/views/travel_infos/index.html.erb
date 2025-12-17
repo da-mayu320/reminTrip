@@ -5,39 +5,32 @@
 <% end %>
 
 <% if @travel_infos.any? %>
-  <table border="1" cellpadding="5" cellspacing="0">
+  <table border="1">
     <thead>
       <tr>
         <th>予約番号</th>
-        <th>搭乗日時・出発地</th>
-        <th>到着日時・到着地</th>
+        <th>出発日時 / 出発地</th>
+        <th>到着日時 / 到着地</th>
+        <th>宿泊情報</th>
       </tr>
     </thead>
     <tbody>
       <% @travel_infos.each do |info| %>
-        <% if info.provider == 'JAL' %>
-          <tr>
-            <td><%= info.reservation_number %></td>
-            <td>
-              <%= info.flight_date %>
-              <%= info.departure_time %> /
-              <%= info.departure %>
-            </td>
-            <td>
-              <%= info.flight_date %>
-              <%= info.arrival_time %> /
-              <%= info.arrival %>
-            </td>
-          </tr>
-        <% end %>
+        <tr>
+          <td><%= info.reservation_number %></td>
+          <% if info.provider == 'JAL' || info.provider == 'Shinkansen' %>
+            <td><%= info.flight_date %> <%= info.departure_time %> / <%= info.departure %></td>
+            <td><%= info.flight_date %> <%= info.arrival_time %> / <%= info.arrival %></td>
+            <td>–</td>
+          <% elsif info.provider == 'Booking.com' %>
+            <td><%= info.checkin_date %> / <%= info.hotel_name %></td>
+            <td><%= info.checkout_date %></td>
+            <td><%= info.hotel_name %></td>
+          <% end %>
+        </tr>
       <% end %>
     </tbody>
   </table>
 <% else %>
   <p>まだ旅行情報はありません。</p>
 <% end %>
-
-
-
-
-
