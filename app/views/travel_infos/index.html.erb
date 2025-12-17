@@ -1,35 +1,40 @@
-<h1>旅行情報一覧</h1>
+<h1>旅行情報</h1>
 
-<%= form_with url: fetch_from_gmail_travel_infos_path, method: :post, local: true do %>
-  <%= submit_tag "Gmailから最新情報を取得" %>
+<%= form_with url: fetch_from_gmail_travel_infos_path, method: :post do %>
+  <%= submit_tag 'Gmailから情報取得',
+                 class: 'btn btn-primary',
+                 data: { confirm: 'Gmailから最新情報を取得しますか？' } %>
 <% end %>
 
-<% if @travel_infos.any? %>
-  <table>
+<% if @flights.any? %>
+  <table border="1" cellpadding="8">
     <thead>
       <tr>
         <th>予約番号</th>
-        <th>搭乗日</th>
-        <th>出発地</th>
-        <th>到着地</th>
+        <th>日付</th>
+        <th>便名</th>
+        <th>出発</th>
+        <th>出発時間</th>
+        <th>到着</th>
+        <th>到着時間</th>
       </tr>
     </thead>
     <tbody>
-      <% @travel_infos.each do |info| %>
+      <% @flights.each do |f| %>
         <tr>
-          <td><%= info.reservation_number %></td>
-          <td><%= info.flight_date&.strftime("%Y-%m-%d") %></td>
-          <td><%= info.departure || "–" %></td>
-          <td><%= info.arrival || "–" %></td>
+          <td><%= f.reservation_number || '–' %></td>
+          <td><%= f.flight_date %></td>
+          <td><%= f.flight_number %></td>
+          <td><%= f.departure %></td>
+          <td><%= f.departure_time %></td>
+          <td><%= f.arrival %></td>
+          <td><%= f.arrival_time %></td>
         </tr>
       <% end %>
-    </tbody>
-  </table>
-<% else %>
-  <p>まだ旅行情報はありません。</p>
-<% end %>
-
-
-
-
-
+    <% else %>
+      <tr>
+        <td colspan="7">データがありません</td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
