@@ -8,6 +8,25 @@ class GmailFetcherService
     @user = user
     @gmail = build_gmail_client
   end
+  
+  def fetch_and_save_travel_infos(provider:, max_emails:)
+    flights = fetch_travel_infos(provider: provider, max_emails: max_emails)
+
+    flights.each do |f|
+      # すでに同じ user_id + reservation_number + flight_number + flight_date が存在していれば保存しない
+      TravelInfo.find_or_create_by(
+        user_id: @user.id,
+        reservation_number: f[:reservation_number],
+        flight_number: f[:flight_number],
+        flight_date: f[:flight_date]
+      ) do |ti|
+        ti.departure      = f[:departure]
+        ti.departure_time = f[:departure_time]
+        ti.arrival        = f[:arrival]
+        ti.arrival_time   = f[:arrival_time]
+      end
+    end
+  end
 
   def fetch_travel_infos(provider:, max_emails:)
     messages = @gmail.list_user_messages(

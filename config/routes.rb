@@ -7,10 +7,8 @@ Rails.application.routes.draw do
   # root ページ
   root 'homes#index'
 
-  resources :travel_infos, only: [:index] do
-    collection do
-      post :fetch_from_gmail
-    end
+  resources :travel_infos do
+    post :fetch_from_gmail, on: :collection
   end
   
   # boardsリソース

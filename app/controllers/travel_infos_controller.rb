@@ -1,19 +1,18 @@
 class TravelInfosController < ApplicationController
-  before_action :authenticate_user!  # Deviseを使用している場合
+  before_action :authenticate_user!
 
-  # 旅行情報一覧
   def index
-    @travel_infos = current_user.travel_infos&.order(flight_date: :desc) || []
+    @flights = current_user.travel_infos.order(flight_date: :asc)
   end
 
-  # Gmailから旅行情報取得
   def fetch_from_gmail
-    service = GmailFetcherService.new(user: current_user)
-    service.fetch_and_save_travel_infos(provider: 'JAL', max_emails: 50)
+    GmailFetcherService
+      .new(user: current_user)
+      .fetch_and_save_travel_infos(provider: 'JAL', max_emails: 10)
 
-    redirect_to travel_infos_path, notice: "最新の旅行情報を取得しました。"
-  rescue StandardError => e
-    Rails.logger.error "[GmailFetchError] #{e.class} #{e.message}\n#{e.backtrace.join("\n")}"
-    redirect_to travel_infos_path, alert: "旅行情報の取得に失敗しました（#{e.class}）"
+    redirect_to travel_infos_path, notice: 'Gmailから旅行情報を取得しました'
+  rescue => e
+    Rails.logger.error e
+    redirect_to travel_infos_path, alert: 'メールの取得に失敗しました'
   end
 end
