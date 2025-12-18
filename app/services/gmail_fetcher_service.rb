@@ -1,4 +1,3 @@
-# app/services/gmail_fetcher_service.rb
 require 'google/apis/gmail_v1'
 require 'googleauth'
 require 'base64'
@@ -66,6 +65,7 @@ class GmailFetcherService
 
     decoded = Base64.urlsafe_decode64(part.body.data)
 
+    # ★ここが重要（Encoding Fix）
     decoded.force_encoding('UTF-8')
            .encode('UTF-8', invalid: :replace, undef: :replace)
   rescue
@@ -77,9 +77,17 @@ class GmailFetcherService
                .force_encoding('UTF-8')
                .encode('UTF-8', invalid: :replace, undef: :replace)
     text = text.gsub(/<[^>]+>/, "\n")
+    
+    puts "===== RAW MAIL BODY ====="
+    puts text
+    puts "======================"
 
-    reservation_number = text[/〔予約番号〕\s*([A-Z0-9]+)/, 1] || "–"
-
+    reservation_number = text[/〔?予約番号〕?[\s　]*\n[\s　]*([A-Z0-9]{5,6})/, 1] || "–"
+    
+    puts "===== EXTRACTED RESERVATION NUMBER ====="
+    puts reservation_number
+    puts "========================================"
+    
     lines = text.split(/\R/).map(&:strip)
 
     flights = []
@@ -113,6 +121,10 @@ class GmailFetcherService
         arrival_time: arr_time
       }
     end
+
+    puts "===== EXTRACTED FLIGHTS ====="
+    puts flights.inspect
+    puts "=============================="
 
     flights
   end
