@@ -1,3 +1,33 @@
-<h1>Welcome!</h1>
-<p>これはreminTripというアプリケーションです。</p>
+<h1>reminTrip</h1>
 
+<% if user_signed_in? %>
+  <p>
+    Gmailから取得したあなたの旅行情報を表示します。
+  </p>
+
+  <%= link_to '旅行情報を見る', travel_infos_path, class: 'btn btn-primary' %>
+
+<% else %>
+  <p>
+    Googleアカウントでログインして利用します
+  </p>
+
+  <p>
+    本サービスは、Googleアカウントでログインすることで、<br>
+    Gmailに届いているJALの予約確認メールを読み取り、<br>
+    フライト情報を自動で一覧化します。
+  </p>
+
+  <ul>
+    <li>読み取るのは予約確認メールのみです</li>
+    <li>メールの送信や編集は行いません</li>
+  </ul>
+
+  <p style="font-size: 0.9em; color: #666;">
+    ※ 初回ログイン時に Google の許可画面が表示されます
+  </p>
+
+  <%= link_to 'Googleでログインして開始',
+              user_google_oauth2_omniauth_authorize_path,
+              class: 'btn btn-success' %>
+<% end %>

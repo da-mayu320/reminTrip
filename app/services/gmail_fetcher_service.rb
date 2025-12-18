@@ -106,7 +106,7 @@ class GmailFetcherService
       # ② 発 → 着（ガード付き）
       match = line.match(/(.+?)\s*(\d{2}:\d{2})発.*?(.+?)\s*(\d{2}:\d{2})着/)
       next unless match
-      next unless current_date
+      next unless current_date && current_flight_no.present?
 
       dep, dep_time, arr, arr_time = match.captures
       next if dep.nil? || arr.nil?

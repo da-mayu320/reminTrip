@@ -1,8 +1,14 @@
 Rails.application.routes.draw do
   # Devise のユーザー認証 + Omniauth コールバック
-  devise_for :users, controllers: {
-    omniauth_callbacks: 'users/omniauth_callbacks'
-  }
+  devise_for :users,
+    controllers: {
+      omniauth_callbacks: 'users/omniauth_callbacks'
+    },
+    skip: [:registrations]
+  
+  devise_scope :user do
+    delete 'users/sign_out', to: 'devise/sessions#destroy', as: :destroy_user_session
+  end
 
   # root ページ
   root 'homes#index'
@@ -17,13 +23,6 @@ Rails.application.routes.draw do
   # ログインユーザー自身のページ
   resource :user, only: [:show] do
     get 'google_connected', on: :member
-  end
-  
-  # GoogleController 関連のルーティング
-  scope :google do
-    get 'auth', to: 'google#auth', as: :auth_google
-    get 'callback', to: 'google#callback', as: :auth_google_callback
-    get 'read_email', to: 'google#read_email'
   end
 
   # LetterOpenerWeb（開発用メール確認）
