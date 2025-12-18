@@ -1,8 +1,7 @@
 class User < ApplicationRecord
-  devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable,
-         :omniauthable, omniauth_providers: [:google_oauth2]
-
+  # Googleログイン限定
+  devise :omniauthable, :rememberable, omniauth_providers: [:google_oauth2]
+  
   encrypts :google_access_token
   encrypts :google_refresh_token
 
@@ -11,21 +10,20 @@ class User < ApplicationRecord
   def self.from_omniauth(auth)
     user = find_or_initialize_by(email: auth.info.email)
 
-    # 初回作成時のみ password を設定
-    if user.new_record?
-      user.password = Devise.friendly_token[0, 20]
-    end
+    # パスワード不要なので削除
+    # if user.new_record?
+    #   user.password = Devise.friendly_token[0, 20]
+    # end
 
-    user.provider             = auth.provider
-    user.uid                  = auth.uid
-    user.google_access_token  = auth.credentials.token
+    user.provider = auth.provider
+    user.uid = auth.uid
+    user.google_access_token = auth.credentials.token
 
-    # refresh_token は初回しか来ないので注意
     if auth.credentials.refresh_token.present?
       user.google_refresh_token = auth.credentials.refresh_token
     end
 
-    user.token_expires_at     = Time.at(auth.credentials.expires_at)
+    user.token_expires_at = Time.at(auth.credentials.expires_at)
 
     user.save!
     user
@@ -35,7 +33,7 @@ class User < ApplicationRecord
     google_access_token.present? && google_refresh_token.present?
   end
 
-  # Gmail API 用クライアントを返す（トークン自動更新）
+  # Gmail API 用クライアント（既存のまま）
   def google_api_client
     client = Signet::OAuth2::Client.new(
       client_id: ENV['GOOGLE_CLIENT_ID'],
@@ -57,4 +55,3 @@ class User < ApplicationRecord
     client
   end
 end
-
