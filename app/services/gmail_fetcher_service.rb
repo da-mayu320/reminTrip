@@ -66,7 +66,6 @@ class GmailFetcherService
 
     decoded = Base64.urlsafe_decode64(part.body.data)
 
-    # ★ここが重要（Encoding Fix）
     decoded.force_encoding('UTF-8')
            .encode('UTF-8', invalid: :replace, undef: :replace)
   rescue
@@ -78,6 +77,8 @@ class GmailFetcherService
                .force_encoding('UTF-8')
                .encode('UTF-8', invalid: :replace, undef: :replace)
     text = text.gsub(/<[^>]+>/, "\n")
+
+    reservation_number = text[/〔予約番号〕\s*([A-Z0-9]+)/, 1] || "–"
 
     lines = text.split(/\R/).map(&:strip)
 
@@ -103,6 +104,7 @@ class GmailFetcherService
       next if dep.nil? || arr.nil?
 
       flights << {
+        reservation_number: reservation_number,
         flight_date: current_date,
         flight_number: current_flight_no,
         departure: dep.strip.gsub(/\A[　\s]+/, ''),

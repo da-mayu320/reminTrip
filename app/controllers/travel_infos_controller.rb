@@ -2,7 +2,7 @@ class TravelInfosController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    @flights = current_user.travel_infos.order(flight_date: :asc)
+    @flights = current_user.travel_infos.order(flight_date: :asc, departure_time: :asc)
   end
 
   def fetch_from_gmail
