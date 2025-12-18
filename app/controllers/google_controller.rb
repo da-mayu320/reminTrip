@@ -38,7 +38,7 @@ class GoogleController < ApplicationController
       token_expires_at: Time.current + token_data['expires_in'].to_i.seconds
     )
 
-    redirect_to root_path, notice: "Googleアカウントを連携しました"
+    redirect_to travel_infos_path, notice: "Googleアカウントを連携しました"
   end
 
   # 最新メール取得
