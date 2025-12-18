@@ -1,4 +1,4 @@
-<h1>ようこそ、<%= current_user.name %>さん</h1>
+<h1>ようこそ、reminTripへ！</h1>
 
 <% if current_user.google_access_token.present? %>
   <%= button_to '旅行情報を取得', fetch_from_gmail_travel_infos_path, method: :post %>
